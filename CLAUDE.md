@@ -16,10 +16,14 @@ agent-skills/
 
 ## Skills Overview
 
-| Skill | Description | Triggers |
-|-------|-------------|----------|
-| [pr-guardian](#pr-guardian) | Pre-PR code review and bug detection for Java/Spring Boot | "review code", "review my branch", "compare against develop", "find bugs", "check security" |
-| [openapi-architect](#openapi-architect) | Design and generate OpenAPI 3.1 specifications | "design an API", "create OpenAPI spec", "review API design", "architect REST endpoints" |
+| Skill | Version | Description | Triggers |
+|-------|---------|-------------|----------|
+| [pr-guardian](#pr-guardian) | 1.0 | Pre-PR code review and bug detection for Java/Spring Boot | "review code", "review my branch", "compare against develop", "find bugs", "check security" |
+| [openapi-architect](#openapi-architect) | 1.0 | Design and generate OpenAPI 3.1 specifications | "design an API", "create OpenAPI spec", "review API design", "architect REST endpoints" |
+
+**Author:** Ajay Wadhara
+**License:** MIT
+**Specification:** [agentskills.io](https://agentskills.io/specification)
 
 ---
 
@@ -135,30 +139,93 @@ Reports are saved to `.output/` directory:
 
 ## Creating New Skills
 
-To add a new skill:
+Following the [Agent Skills Specification](https://agentskills.io/specification).
+
+### Steps
 
 1. Create a new directory under `skills/`: `skills/<skill-name>/`
-2. Add a `SKILL.md` file with frontmatter containing:
-   - `name`: Skill identifier
-   - `description`: What the skill does and when it activates
-3. Add any supporting reference files in a `references/` subdirectory
-4. Document the skill in this CLAUDE.md file
+2. Add a `SKILL.md` file with proper frontmatter (see template below)
+3. Add supporting reference files in a `references/` subdirectory (optional)
+4. Add scripts in a `scripts/` subdirectory (optional)
+5. Document the skill in this CLAUDE.md file
+
+### Directory Structure
+
+```
+skill-name/
+├── SKILL.md              # Required - Main skill definition
+├── references/           # Optional - Additional documentation
+│   ├── patterns.md
+│   └── checklist.md
+├── scripts/              # Optional - Executable scripts
+│   └── analyze.py
+└── assets/               # Optional - Static resources
+    └── templates/
+```
 
 ### SKILL.md Template
 
 ```markdown
 ---
 name: skill-name
-description: Brief description of what this skill does and when it should activate.
+description: A detailed description of what this skill does and when to use it. Include specific keywords that help agents identify relevant tasks. Max 1024 characters.
+license: MIT
+compatibility: Environment requirements (e.g., requires git, docker, specific tools).
+metadata:
+  author: Ajay Wadhara
+  version: "1.0"
+  category: category-name
+  custom-field: custom-value
+allowed-tools: Bash(git:*) Read Write Glob Grep
 ---
 
 # Skill Title
 
-Instructions for Claude when this skill is activated...
+Instructions for the agent when this skill is activated...
+
+## Your Task
+
+Step-by-step instructions...
+
+## Examples
+
+Input/output examples...
+
+## References
+
+Links to reference files for detailed information...
 ```
+
+### Frontmatter Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | 1-64 chars, lowercase alphanumeric and hyphens only |
+| `description` | Yes | 1-1024 chars, describes what skill does and when to use it |
+| `license` | No | License name (e.g., MIT, Apache-2.0) |
+| `compatibility` | No | Environment requirements (max 500 chars) |
+| `metadata` | No | Key-value pairs for additional info (author, version, etc.) |
+| `allowed-tools` | No | Space-delimited list of pre-approved tools |
+
+### Naming Rules
+
+- Lowercase letters, numbers, and hyphens only
+- Must not start or end with hyphen
+- No consecutive hyphens (`--`)
+- Directory name must match `name` field
+
+### Progressive Disclosure
+
+Structure skills for efficient context usage:
+
+1. **Metadata** (~100 tokens) - `name` and `description` loaded at startup
+2. **Instructions** (<5000 tokens) - Full SKILL.md loaded when activated
+3. **Resources** (as needed) - Reference files loaded only when required
+
+Keep main SKILL.md under 500 lines. Move detailed content to reference files.
 
 ---
 
 ## Usage
 
-These skills are designed to be used with Claude Code. They automatically activate based on trigger phrases in your conversations. You can also explicitly invoke them by referencing the skill's purpose or commands.
+These skills are designed to be used with Claude Code, GitHub Copilot, or similar AI coding assistants. They automatically activate based on trigger phrases in your conversations. You can also explicitly invoke them by referencing the skill's purpose or commands.

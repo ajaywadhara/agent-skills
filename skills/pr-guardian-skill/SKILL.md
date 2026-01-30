@@ -1,6 +1,15 @@
 ---
 name: pr-guardian
 description: Pre-PR code review and bug detection for Java Spring Boot applications. Use this skill BEFORE raising a PR to (1) detect bugs, security vulnerabilities, and performance issues in code, (2) review Java files for common problems, (3) generate self-review checklists, (4) calculate risk scores, (5) suggest fixes, (6) compare feature branches against develop/master. Activates when user asks to review code, find bugs, conduct code quality checks, check security, prepare for PR, or compare branches.
+license: MIT
+compatibility: Requires git for branch comparison features. Designed for Claude Code, GitHub Copilot, or similar AI coding assistants.
+metadata:
+  author: Ajay Wadhara
+  version: "1.0"
+  language: Java
+  framework: Spring Boot
+  category: code-review
+allowed-tools: Bash(git:*) Read Glob Grep Write
 ---
 
 # PR Guardian - Pre-PR Defense System

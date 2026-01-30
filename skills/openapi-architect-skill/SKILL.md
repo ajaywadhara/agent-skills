@@ -1,6 +1,15 @@
 ---
 name: openapi-architect
 description: Design and generate OpenAPI 3.1 specifications following industry best practices. Use this skill to (1) create API specs from requirements, (2) review existing specs for compliance, (3) apply RESTful design principles, (4) implement proper error handling per RFC 7807, (5) design security schemes, (6) structure pagination/filtering. Activates when user asks to design an API, create OpenAPI spec, review API design, or architect REST endpoints.
+license: MIT
+compatibility: Designed for Claude Code, GitHub Copilot, or similar AI coding assistants.
+metadata:
+  author: Ajay Wadhara
+  version: "1.0"
+  spec-version: OpenAPI 3.1
+  category: api-design
+  standards: RFC 9110, RFC 7807, RFC 8288, RFC 7396
+allowed-tools: Read Write Glob Grep
 ---
 
 # OpenAPI Architect - API Design Expert
