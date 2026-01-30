@@ -10,6 +10,7 @@ agent-skills/
 │   └── <skill-name>/
 │       ├── SKILL.md          # Skill definition file (required)
 │       └── references/       # Supporting reference documents (optional)
+├── .output/                   # Generated reports (gitignored)
 └── CLAUDE.md                 # This file
 ```
 
@@ -17,7 +18,7 @@ agent-skills/
 
 | Skill | Description | Triggers |
 |-------|-------------|----------|
-| [pr-guardian](#pr-guardian) | Pre-PR code review and bug detection for Java/Spring Boot | "review code", "find bugs", "check security", "prepare for PR" |
+| [pr-guardian](#pr-guardian) | Pre-PR code review and bug detection for Java/Spring Boot | "review code", "review my branch", "compare against develop", "find bugs", "check security" |
 | [openapi-architect](#openapi-architect) | Design and generate OpenAPI 3.1 specifications | "design an API", "create OpenAPI spec", "review API design", "architect REST endpoints" |
 
 ---
@@ -28,14 +29,22 @@ agent-skills/
 
 **Location:** `skills/pr-guardian-skill/`
 
-**Purpose:** Pre-PR defense system that analyzes Java/Spring Boot code for bugs, security vulnerabilities, and quality issues before raising a pull request.
+**Purpose:** Pre-PR defense system that analyzes Java/Spring Boot code for bugs, security vulnerabilities, and quality issues before raising a pull request. Supports both local changes and full branch comparison.
+
+**Review Modes:**
+- **Local Changes** - Review uncommitted/staged changes in working directory
+- **Branch Comparison** - Compare entire feature branch against base branch (develop/main/master)
+- **Commit Range** - Review changes from specific commits
 
 **Capabilities:**
 - Detect bugs, security vulnerabilities, and performance issues
 - Review Java files for common problems
+- Compare feature branches against develop/main/master
+- Handle partially committed changes
 - Generate self-review checklists
 - Calculate risk scores (1-10)
 - Suggest fixes for identified issues
+- Save detailed reports to `.output/` directory
 
 **Issue Severity Levels:**
 - `BLOCKER` - Critical bug or security flaw (must fix before PR)
@@ -58,12 +67,21 @@ agent-skills/
 - `references/review-checklist-templates.md` - Checklist templates by file type
 
 **Example Commands:**
-- "Review my code"
-- "Check for security issues"
-- "Find bugs in X.java"
-- "What's my risk score?"
-- "Generate PR checklist"
-- "Is this code ready for PR?"
+- "Review my code" - Review local uncommitted changes
+- "Review my branch" - Compare feature branch against base
+- "Compare against develop" - Explicit base branch comparison
+- "Compare against main" - Compare with main branch
+- "Review last 3 commits" - Review recent commit changes
+- "What changed since develop?" - List all branch changes
+- "Check for security issues" - Security-focused review
+- "Find bugs in X.java" - Single file analysis
+- "What's my risk score?" - Risk assessment
+- "Is this code ready for PR?" - Quick pass/fail check
+
+**Report Output:**
+Reports are saved to `.output/` directory:
+- `.output/pr-report-{context}-{timestamp}.md` for local changes
+- `.output/pr-report-{feature}-vs-{base}-{timestamp}.md` for branch comparison
 
 ---
 

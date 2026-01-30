@@ -1,6 +1,6 @@
 ---
 name: pr-guardian
-description: Pre-PR code review and bug detection for Java Spring Boot applications. Use this skill BEFORE raising a PR to (1) detect bugs, security vulnerabilities, and performance issues in code, (2) review Java files for common problems, (3) generate self-review checklists, (4) calculate risk scores, (5) suggest fixes. Activates when user asks to review code, find bugs, conduct code quality checks, check security, or prepare for PR.
+description: Pre-PR code review and bug detection for Java Spring Boot applications. Use this skill BEFORE raising a PR to (1) detect bugs, security vulnerabilities, and performance issues in code, (2) review Java files for common problems, (3) generate self-review checklists, (4) calculate risk scores, (5) suggest fixes, (6) compare feature branches against develop/master. Activates when user asks to review code, find bugs, conduct code quality checks, check security, prepare for PR, or compare branches.
 ---
 
 # PR Guardian - Pre-PR Defense System
@@ -11,33 +11,194 @@ You are a code review expert. When this skill activates, analyze the user's Java
 
 When asked to review code or prepare for PR:
 
-1. **Analyze the code** the user provides or references
-2. **Check against patterns** in the references (bug-patterns.md, security-checklist.md, etc.)
-3. **Report issues** with severity (BLOCKER/WARNING/SUGGESTION)
-4. **Provide fixes** for each issue found
-5. **Calculate risk score** based on findings
-6. **Generate checklist** for the user
-7. **Save report** to `.output/` directory as markdown file
+1. **Determine review mode** (local changes, staged changes, or branch comparison)
+2. **Analyze the code** the user provides or references
+3. **Check against patterns** in the references (bug-patterns.md, security-checklist.md, etc.)
+4. **Report issues** with severity (BLOCKER/WARNING/SUGGESTION)
+5. **Provide fixes** for each issue found
+6. **Calculate risk score** based on findings
+7. **Generate checklist** for the user
+8. **Save report** to `.output/` directory as markdown file
+
+---
+
+## Review Modes
+
+### Mode 1: Local Changes (Default)
+Review uncommitted changes in the working directory.
+
+```bash
+# Get list of modified files
+git status --porcelain
+
+# Get diff of unstaged changes
+git diff
+
+# Get diff of staged changes
+git diff --cached
+```
+
+### Mode 2: Branch Comparison (Feature vs Base)
+Compare entire feature branch against a base branch (develop/master/main).
+
+**When to use:** User says "compare my branch", "review feature branch", "compare against develop", or has partially committed changes.
+
+#### Step 1: Detect Current and Base Branches
+```bash
+# Get current branch name
+git branch --show-current
+
+# Find the base branch (check in order: develop, main, master)
+git branch -a | grep -E "^\*?\s*(develop|main|master)$" | head -1
+
+# Or check remote branches
+git branch -r | grep -E "origin/(develop|main|master)" | head -1
+```
+
+#### Step 2: Get All Changes Between Branches
+```bash
+# List all changed files between feature branch and base
+git diff --name-only <base-branch>..HEAD
+
+# Get full diff between branches
+git diff <base-branch>..HEAD
+
+# Get diff for specific file types (e.g., Java files only)
+git diff <base-branch>..HEAD -- "*.java"
+
+# Get statistics (files changed, insertions, deletions)
+git diff --stat <base-branch>..HEAD
+```
+
+#### Step 3: Get Commit History
+```bash
+# List commits in feature branch not in base
+git log --oneline <base-branch>..HEAD
+
+# Get detailed commit info
+git log --pretty=format:"%h - %s (%an, %ar)" <base-branch>..HEAD
+```
+
+### Mode 3: Specific Commits
+Review changes from specific commits.
+
+```bash
+# Get changes from last N commits
+git diff HEAD~N..HEAD
+
+# Get changes from specific commit
+git show <commit-hash>
+```
+
+---
+
+## Branch Detection Logic
+
+When user asks for branch comparison, follow this logic:
+
+```
+1. Get current branch: git branch --show-current
+2. If current branch is develop/main/master:
+   → Ask user which feature branch to review
+3. Else (on feature branch):
+   → Auto-detect base branch:
+      a. Check if 'develop' exists → use develop
+      b. Else check if 'main' exists → use main
+      c. Else check if 'master' exists → use master
+      d. Else → ask user for base branch
+4. Confirm with user: "Comparing {feature-branch} against {base-branch}"
+5. Proceed with diff analysis
+```
+
+### Common Branch Patterns
+
+| Repository Type | Base Branch | Feature Branch Pattern |
+|-----------------|-------------|------------------------|
+| GitFlow | `develop` | `feature/*`, `bugfix/*` |
+| GitHub Flow | `main` | `feature/*`, `fix/*` |
+| Legacy | `master` | Any |
+| Trunk-based | `main`/`trunk` | Short-lived branches |
+
+---
+
+## Git Commands Reference
+
+### Essential Commands for Review
+
+```bash
+# Current state
+git status --porcelain                    # Quick status
+git branch --show-current                 # Current branch name
+
+# Branch comparison
+git diff develop..HEAD                    # All changes vs develop
+git diff develop..HEAD --name-only        # Just file names
+git diff develop..HEAD --stat             # Summary statistics
+git diff develop..HEAD -- "*.java"        # Only Java files
+
+# File content at different points
+git show develop:path/to/File.java        # File content in develop
+git show HEAD:path/to/File.java           # File content in current
+
+# Commit analysis
+git log develop..HEAD --oneline           # Commits in feature branch
+git log develop..HEAD --name-only         # Commits with files changed
+
+# Merge base (common ancestor)
+git merge-base develop HEAD               # Find where branches diverged
+git diff $(git merge-base develop HEAD)..HEAD  # Changes since divergence
+```
+
+### Handling Uncommitted + Committed Changes
+
+When user has both committed and uncommitted changes:
+
+```bash
+# 1. Get committed changes (feature vs base)
+git diff develop..HEAD
+
+# 2. Get uncommitted changes (working directory)
+git diff
+
+# 3. Get staged but uncommitted
+git diff --cached
+
+# 4. Combined view: all changes including uncommitted
+git diff develop
+```
 
 ## Report Output
 
 **IMPORTANT:** Always save the PR readiness report as a markdown file in the `.output/` directory.
 
 ### File Naming Convention
+
+**For local changes:**
 ```
 .output/pr-report-{context}-{YYYY-MM-DD-HHmmss}.md
 ```
 
+**For branch comparison:**
+```
+.output/pr-report-{feature-branch}-vs-{base-branch}-{YYYY-MM-DD-HHmmss}.md
+```
+
 Examples:
 - `.output/pr-report-user-service-2024-01-15-143022.md`
-- `.output/pr-report-payment-controller-2024-01-15-150530.md`
-- `.output/pr-report-full-review-2024-01-15-161245.md`
+- `.output/pr-report-feature-auth-vs-develop-2024-01-15-150530.md`
+- `.output/pr-report-bugfix-payment-vs-main-2024-01-15-161245.md`
+- `.output/pr-report-local-changes-2024-01-15-170000.md`
 
 ### Report Generation Steps
-1. Perform the code analysis
-2. Generate the report content (see Output Format below)
-3. Write the report to `.output/` with appropriate filename
-4. Inform the user of the report location
+1. Determine review mode (local or branch comparison)
+2. If branch comparison:
+   - Detect current branch and base branch
+   - Run `git diff <base>..HEAD` to get all changes
+   - Run `git log <base>..HEAD` to get commit history
+3. Perform the code analysis on changed files
+4. Generate the report content (see Output Format below)
+5. Write the report to `.output/` with appropriate filename
+6. Inform the user of the report location and summary
 
 ## Issue Severity Levels
 
@@ -271,8 +432,23 @@ When reviewing code, save this report to `.output/pr-report-{context}-{timestamp
 
 ```markdown
 # PR Readiness Report
-**Generated:** {YYYY-MM-DD HH:mm:ss}
-**Files Analyzed:** {list of files}
+
+## 📋 Review Summary
+| Field | Value |
+|-------|-------|
+| **Generated** | {YYYY-MM-DD HH:mm:ss} |
+| **Review Mode** | {Local Changes / Branch Comparison} |
+| **Current Branch** | {branch-name} |
+| **Base Branch** | {base-branch or N/A} |
+| **Commits Reviewed** | {count or N/A} |
+| **Files Changed** | {count} |
+| **Lines Added** | {+count} |
+| **Lines Removed** | {-count} |
+
+## 📁 Files Analyzed
+- `path/to/File1.java` (+45, -12)
+- `path/to/File2.java` (+120, -30)
+- ...
 
 ## 🚦 Status: [READY / NOT READY]
 **Risk Score:** X/10 (LOW/MEDIUM/HIGH)
@@ -291,10 +467,19 @@ When reviewing code, save this report to `.output/pr-report-{context}-{timestamp
 ## 💡 Suggestions (X found)
 - **[File:Line]** - Description
 
+## 📝 Commit Summary (Branch Comparison Mode)
+| Commit | Author | Message |
+|--------|--------|---------|
+| `abc123` | Author Name | Commit message |
+| ... | ... | ... |
+
 ## ✅ Pre-PR Checklist
 - [ ] Fix all blockers
 - [ ] Run tests locally
 - [ ] Self-review the diff
+- [ ] Ensure all commits have meaningful messages
+- [ ] Verify no unintended files are included
+- [ ] Check for merge conflicts with base branch
 ```
 
 ---
@@ -303,12 +488,18 @@ When reviewing code, save this report to `.output/pr-report-{context}-{timestamp
 
 | User Says | Your Action |
 |-----------|-------------|
-| "Review my code" | Full analysis against all patterns |
+| "Review my code" | Full analysis of local changes against all patterns |
+| "Review my branch" | Compare current feature branch against base (develop/main) |
+| "Compare against develop" | Diff feature branch vs develop branch |
+| "Compare against main" | Diff feature branch vs main branch |
+| "Review feature/xyz branch" | Switch context to specific branch and compare |
 | "Check for security issues" | Focus on security-checklist.md patterns |
 | "Find bugs in X.java" | Analyze specific file |
 | "What's my risk score?" | Calculate and explain risk |
 | "Generate PR checklist" | Create checklist based on files changed |
 | "Is this code ready for PR?" | Quick pass/fail assessment |
+| "Review last 3 commits" | Analyze changes in recent commits |
+| "What changed since develop?" | List and analyze all branch changes |
 
 ---
 
