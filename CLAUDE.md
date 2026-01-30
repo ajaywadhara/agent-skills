@@ -18,6 +18,7 @@ agent-skills/
 | Skill | Description | Triggers |
 |-------|-------------|----------|
 | [pr-guardian](#pr-guardian) | Pre-PR code review and bug detection for Java/Spring Boot | "review code", "find bugs", "check security", "prepare for PR" |
+| [openapi-architect](#openapi-architect) | Design and generate OpenAPI 3.1 specifications | "design an API", "create OpenAPI spec", "review API design", "architect REST endpoints" |
 
 ---
 
@@ -63,6 +64,54 @@ agent-skills/
 - "What's my risk score?"
 - "Generate PR checklist"
 - "Is this code ready for PR?"
+
+---
+
+### openapi-architect
+
+**Location:** `skills/openapi-architect-skill/`
+
+**Purpose:** Design and generate OpenAPI 3.1 specifications following industry best practices, RFCs, and recommendations from API design experts (Fielding, Massé, Higginbotham).
+
+**Capabilities:**
+- Create complete OpenAPI 3.1 specs from requirements
+- Review existing specs for compliance and best practices
+- Apply RESTful design principles
+- Implement proper error handling per RFC 7807 (Problem Details)
+- Design authentication/authorization schemes
+- Structure pagination, filtering, and sorting
+- Guide versioning strategy decisions
+
+**Core Principles Applied:**
+- Resource-oriented design (nouns, not verbs)
+- Consistent patterns across all endpoints
+- Predictable URL structures
+- Evolvable APIs without breaking changes
+- Self-documenting with clear naming
+
+**Standards & RFCs Followed:**
+- OpenAPI 3.1 Specification
+- RFC 9110 - HTTP Semantics
+- RFC 7807 - Problem Details for HTTP APIs
+- RFC 8288 - Web Linking (pagination)
+- RFC 7396 - JSON Merge Patch
+- RFC 3986 - URI Standard
+
+**Reference Documents:**
+- `references/http-standards.md` - RFC 9110, 7807, 8288 details
+- `references/security-patterns.md` - OAuth flows, API key best practices, OWASP Top 10
+- `references/pagination-patterns.md` - Cursor vs offset, filtering, sorting
+- `references/naming-conventions.md` - URLs, fields, schemas, operations
+- `references/versioning-strategies.md` - URL, header, content-type versioning
+
+**Example Commands:**
+- "Design an API for X"
+- "Create an OpenAPI spec for a user management system"
+- "Review my API spec"
+- "Add pagination to this endpoint"
+- "How should I handle errors?"
+- "What status code should I use for X?"
+- "Help me design authentication for my API"
 
 ---
 
