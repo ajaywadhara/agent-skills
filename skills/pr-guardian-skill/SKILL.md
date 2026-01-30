@@ -410,6 +410,30 @@ System.out.println("Processing order: " + orderId);
 log.info("Processing order: {}", orderId);
 ```
 
+**Pattern: Verbose type declaration instead of `final var`**
+```java
+// ❌ SUGGESTION: Verbose and redundant type declaration
+final HttpStatus status = HttpStatus.OK;
+final String message = "Success";
+final List<User> users = userRepository.findAll();
+
+// ✅ FIX: Use final var with descriptive variable names
+final var httpStatus = HttpStatus.OK;
+final var successMessage = "Success";
+final var activeUsers = userRepository.findAll();
+```
+
+**Pattern: Mutable local variables**
+```java
+// ❌ SUGGESTION: Non-final allows accidental reassignment
+var status = HttpStatus.OK;
+String message = response.getMessage();
+
+// ✅ FIX: Use final to prevent reassignment
+final var responseStatus = HttpStatus.OK;
+final var responseMessage = response.getMessage();
+```
+
 ---
 
 ## Risk Score Calculation

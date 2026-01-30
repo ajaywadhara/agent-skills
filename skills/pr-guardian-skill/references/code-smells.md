@@ -416,6 +416,137 @@ public class UserService {
 
 ---
 
+## Variable Declaration Style
+
+### Use `final var` for Local Variables
+
+**Principle:** Use `final var` for local variables to:
+1. Enforce immutability (prevents reassignment)
+2. Reduce visual clutter (type inference)
+3. Force descriptive variable names (since type isn't visible)
+
+```java
+// ❌ SMELL: Explicit type with final - redundant and verbose
+final HttpStatus status = HttpStatus.OK;
+final String message = "Success";
+final List<User> users = userRepository.findAll();
+final Optional<Order> order = orderRepository.findById(id);
+final UserResponseDTO response = mapper.toDTO(user);
+
+// ✅ BETTER: Use final var with descriptive names
+final var httpStatus = HttpStatus.OK;
+final var successMessage = "Success";
+final var activeUsers = userRepository.findAll();
+final var existingOrder = orderRepository.findById(id);
+final var userResponse = mapper.toDTO(user);
+```
+
+### Variable Naming with `var`
+
+Since `var` hides the type, variable names must be more descriptive:
+
+```java
+// ❌ BAD: Vague names become worse with var
+final var s = HttpStatus.OK;           // What is 's'?
+final var list = findAll();            // List of what?
+final var result = process(order);     // What kind of result?
+final var dto = convert(user);         // DTO for what?
+
+// ✅ GOOD: Descriptive names compensate for hidden type
+final var responseStatus = HttpStatus.OK;
+final var pendingOrders = orderRepository.findByStatus(PENDING);
+final var paymentResult = paymentService.process(order);
+final var userProfileDto = userMapper.toProfileDto(user);
+```
+
+### When NOT to Use `var`
+
+```java
+// ❌ Don't use var when type isn't obvious from context
+final var value = getValue();           // Type unclear
+final var data = parse(input);          // What type is data?
+final var x = calculate();              // Completely opaque
+
+// ✅ Use explicit type when it aids readability
+final BigDecimal calculatedTax = taxService.calculate(order);
+final CompletableFuture<Result> asyncResult = executeAsync();
+final Map<String, List<OrderItem>> groupedItems = groupByCategory(items);
+```
+
+### `final var` Patterns by Context
+
+**Method Return Values:**
+```java
+// ✅ GOOD
+final var savedOrder = orderRepository.save(order);
+final var validationErrors = validator.validate(request);
+final var accessToken = authService.generateToken(user);
+```
+
+**Stream Operations:**
+```java
+// ✅ GOOD
+final var totalAmount = orders.stream()
+    .map(Order::getAmount)
+    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+final var activeUserEmails = users.stream()
+    .filter(User::isActive)
+    .map(User::getEmail)
+    .collect(Collectors.toList());
+```
+
+**Object Creation:**
+```java
+// ✅ GOOD - Type is clear from constructor/builder
+final var newOrder = new Order(customer, items);
+final var orderRequest = OrderRequest.builder()
+    .customerId(customerId)
+    .items(items)
+    .build();
+```
+
+**Loop Variables:**
+```java
+// ✅ GOOD
+for (final var order : orders) {
+    processOrder(order);
+}
+
+// ✅ GOOD - Entry iteration
+for (final var entry : orderMap.entrySet()) {
+    log.info("Order {}: {}", entry.getKey(), entry.getValue());
+}
+```
+
+### Why `final` Matters
+
+```java
+// ❌ BAD: Mutable local variable - can be reassigned accidentally
+var status = HttpStatus.OK;
+// ... 50 lines later ...
+status = HttpStatus.CREATED;  // Was this intentional?
+
+// ✅ GOOD: Immutable - compiler prevents reassignment
+final var status = HttpStatus.OK;
+// ... 50 lines later ...
+status = HttpStatus.CREATED;  // ❌ Compile error!
+```
+
+### Summary Table
+
+| Context | Recommendation | Example |
+|---------|---------------|---------|
+| Method return values | `final var` + descriptive name | `final var savedUser = repo.save(user)` |
+| Object instantiation | `final var` (type obvious) | `final var config = new Config()` |
+| Builder results | `final var` | `final var request = Request.builder()...build()` |
+| Stream results | `final var` + descriptive name | `final var activeCount = stream.filter(...).count()` |
+| Primitives/Strings | `final var` OK if name is clear | `final var maxRetries = 3` |
+| Complex generics | Consider explicit type | `final Map<K, List<V>> grouped = ...` |
+| Unclear context | Use explicit type | `final BigDecimal tax = calculate()` |
+
+---
+
 ## Code Quality Metrics
 
 ### Cyclomatic Complexity
@@ -479,3 +610,5 @@ public void process(Order order) {
 | Layer Violation | Controller → Repository direct access |
 | Boolean Blindness | Methods with multiple boolean parameters |
 | Vague Names | data, manager, handler, processor without context |
+| Verbose Type Declaration | `final HttpStatus status` instead of `final var httpStatus` |
+| Mutable Local Variables | Non-final local variables that could be final |
