@@ -21,3 +21,7 @@ temp/
 .env
 .env.local
 .env.*.local
+
+# Skill output reports
+.output/*
+!.output/.gitkeep

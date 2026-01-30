@@ -17,6 +17,27 @@ When asked to review code or prepare for PR:
 4. **Provide fixes** for each issue found
 5. **Calculate risk score** based on findings
 6. **Generate checklist** for the user
+7. **Save report** to `.output/` directory as markdown file
+
+## Report Output
+
+**IMPORTANT:** Always save the PR readiness report as a markdown file in the `.output/` directory.
+
+### File Naming Convention
+```
+.output/pr-report-{context}-{YYYY-MM-DD-HHmmss}.md
+```
+
+Examples:
+- `.output/pr-report-user-service-2024-01-15-143022.md`
+- `.output/pr-report-payment-controller-2024-01-15-150530.md`
+- `.output/pr-report-full-review-2024-01-15-161245.md`
+
+### Report Generation Steps
+1. Perform the code analysis
+2. Generate the report content (see Output Format below)
+3. Write the report to `.output/` with appropriate filename
+4. Inform the user of the report location
 
 ## Issue Severity Levels
 
@@ -246,10 +267,12 @@ Calculate 1-10 based on:
 
 ## Output Format
 
-When reviewing code, respond with:
+When reviewing code, save this report to `.output/pr-report-{context}-{timestamp}.md`:
 
 ```markdown
 # PR Readiness Report
+**Generated:** {YYYY-MM-DD HH:mm:ss}
+**Files Analyzed:** {list of files}
 
 ## 🚦 Status: [READY / NOT READY]
 **Risk Score:** X/10 (LOW/MEDIUM/HIGH)
