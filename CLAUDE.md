@@ -6,10 +6,10 @@ This repository contains custom Claude Code skills (agent-skills) that extend Cl
 
 ```
 agent-skills/
-├── skills/                    # All skill definitions
-│   └── <skill-name>/
-│       ├── SKILL.md          # Skill definition file (required)
-│       └── references/       # Supporting reference documents (optional)
+├── <skill-name>/              # Skill directories at root level
+│   ├── SKILL.md              # Skill definition file (required)
+│   ├── references/           # Supporting reference documents (optional)
+│   └── scripts/              # Executable scripts (optional)
 ├── .output/                   # Generated reports (gitignored)
 └── CLAUDE.md                 # This file
 ```
@@ -18,8 +18,9 @@ agent-skills/
 
 | Skill | Version | Description | Triggers |
 |-------|---------|-------------|----------|
-| [pr-guardian](#pr-guardian) | 1.0 | Pre-PR code review and bug detection for Java/Spring Boot | "review code", "review my branch", "compare against develop", "find bugs", "check security" |
+| [pr-guardian](#pr-guardian) | 1.1 | Pre-PR code review and bug detection for Java/Spring Boot (interactive) | "review code", "review my branch", "compare against develop", "find bugs", "check security" |
 | [openapi-architect](#openapi-architect) | 1.0 | Design and generate OpenAPI 3.1 specifications | "design an API", "create OpenAPI spec", "review API design", "architect REST endpoints" |
+| [spring-boot-4-migration](#spring-boot-4-migration) | 1.0 | Comprehensive migration guide for Spring Boot 3.x to 4.x | "migrate to Spring Boot 4", "upgrade Spring Boot", "Spring Boot 4 migration", "modernize Spring Boot" |
 
 **Author:** Ajay Wadhara
 **License:** MIT
@@ -31,9 +32,9 @@ agent-skills/
 
 ### pr-guardian
 
-**Location:** `skills/pr-guardian-skill/`
+**Location:** `pr-guardian-skill/`
 
-**Purpose:** Pre-PR defense system that analyzes Java/Spring Boot code for bugs, security vulnerabilities, and quality issues before raising a pull request. Supports both local changes and full branch comparison.
+**Purpose:** Pre-PR defense system that analyzes Java/Spring Boot code for bugs, security vulnerabilities, and quality issues before raising a pull request. Supports both local changes and full branch comparison with **interactive fix workflows**.
 
 **Review Modes:**
 - **Local Changes** - Review uncommitted/staged changes in working directory
@@ -49,6 +50,15 @@ agent-skills/
 - Calculate risk scores (1-10)
 - Suggest fixes for identified issues
 - Save detailed reports to `.output/` directory
+- **Interactive fix application** - Offers to fix issues after review
+- **Selective fixing** - Fix all, BLOCKERs only, or choose individually
+- **Commit integration** - Optionally commit fixes with proper messages
+
+**Interactive Workflows:**
+1. **Clarify scope** - Asks what to review if unclear (local/branch/commits)
+2. **After analysis** - Offers to fix BLOCKERs, all issues, or let user choose
+3. **After fixes** - Offers to review changes, re-run analysis, or commit
+4. **Commit options** - Single commit, separate by category, or manual
 
 **Issue Severity Levels:**
 - `BLOCKER` - Critical bug or security flaw (must fix before PR)
@@ -91,7 +101,7 @@ Reports are saved to `.output/` directory:
 
 ### openapi-architect
 
-**Location:** `skills/openapi-architect-skill/`
+**Location:** `openapi-architect-skill/`
 
 **Purpose:** Design and generate OpenAPI 3.1 specifications following industry best practices, RFCs, and recommendations from API design experts (Fielding, Massé, Higginbotham).
 
@@ -137,13 +147,92 @@ Reports are saved to `.output/` directory:
 
 ---
 
+### spring-boot-4-migration
+
+**Location:** `spring-boot-4-migration-skill/`
+
+**Purpose:** Comprehensive, modular skill for migrating Spring Boot applications from 3.x to 4.x. Provides step-by-step guidance through all migration phases with detailed reference documentation.
+
+**Migration Strategies:**
+- **Gradual Migration** - Uses compatibility bridges for incremental adoption across 6 independent tracks
+- **All-at-Once Migration** - Execute all 10 phases sequentially for smaller codebases
+
+**Migration Phases:**
+1. Pre-Migration Preparation - Version checks, deprecation fixes, test baseline
+2. Build File Migration - Parent version, comprehensive starter changes by category
+3. Property Migration - Renamed properties, Jackson property restructuring
+4. Jackson 3 Migration - Package changes, class renames, default behavior changes
+5. Package and API Relocations - Key package moves, removed APIs
+6. Spring Security 7 Migration - DSL changes, authorization updates, request matchers
+7. Testing Infrastructure Migration - MockBean replacement, @SpringBootTest changes
+8. Observability Migration - OpenTelemetry starter, configuration updates
+9. Spring Framework 7 Changes - JSpecify null safety, resilience, Hibernate 7.1
+10. Verification and Cleanup - Run verification script, remove compatibility bridges
+
+**Starter Changes by Category:**
+- **Web & API** - `starter-web` → `starter-webmvc`, `starter-web-services` → `starter-webservices`
+- **Security** - OAuth2/SAML starters renamed with `-security-` prefix, new `starter-security-test`
+- **Database** - New `starter-flyway`, `starter-liquibase` (now required)
+- **Batch** - New `starter-batch-jdbc`, `starter-batch-mongodb` for metadata persistence
+- **Observability** - New unified `starter-opentelemetry`
+- **AOP** - `starter-aop` → `starter-aspectj`
+- **Serialization** - New `starter-kotlin-serialization`
+- **Containers** - `starter-undertow` removed (use Jetty)
+- **Testing** - New slice test starters (`starter-webmvc-test`, `starter-data-jpa-test`, etc.)
+- **Session** - Hazelcast/MongoDB session support moved to external providers
+- **Migration Bridges** - `starter-classic`, `starter-test-classic`, `spring-boot-jackson2`
+
+**Minimum Requirements:**
+- Java 17+ (21+ recommended)
+- Kotlin 2.2+ (if using Kotlin)
+- Maven 3.6.3+ or Gradle 8.14+
+- GraalVM 25+ (for native images)
+
+**Key Dependencies Updated:**
+- Spring Framework 7.0
+- Spring Security 7.0
+- Spring Data 2025.1
+- Hibernate 7.1
+- Jackson 3.0
+- JUnit 6
+- Testcontainers 2.0
+- Jakarta EE 11 (Servlet 6.1)
+
+**Reference Documents:**
+- `references/pre-migration.md` - Pre-migration assessment and preparation
+- `references/build-migration.md` - Build file changes for Maven and Gradle
+- `references/property-changes.md` - Configuration property migrations
+- `references/jackson3-migration.md` - Jackson 2 to 3 migration details
+- `references/api-changes.md` - Package relocations and API changes
+- `references/security7-migration.md` - Spring Security 7 migration guide
+- `references/testing-migration.md` - Test infrastructure updates
+- `references/observability-migration.md` - Observability and metrics migration
+- `references/framework7-changes.md` - Spring Framework 7 specific changes
+- `references/verification-checklist.md` - Post-migration verification steps
+
+**Scripts:**
+- `scripts/verify-migration.sh` - Automated migration verification script
+
+**Example Commands:**
+- "Migrate to Spring Boot 4"
+- "Upgrade Spring Boot 3 to 4"
+- "Spring Boot 4 migration"
+- "Update to Boot 4"
+- "Spring Boot 4.x upgrade"
+- "Modernize Spring Boot application"
+- "What's the upgrade path from 3.2?"
+- "Help me migrate Jackson to version 3"
+- "Update my tests for Spring Boot 4"
+
+---
+
 ## Creating New Skills
 
 Following the [Agent Skills Specification](https://agentskills.io/specification).
 
 ### Steps
 
-1. Create a new directory under `skills/`: `skills/<skill-name>/`
+1. Create a new directory at the repository root: `<skill-name>/`
 2. Add a `SKILL.md` file with proper frontmatter (see template below)
 3. Add supporting reference files in a `references/` subdirectory (optional)
 4. Add scripts in a `scripts/` subdirectory (optional)

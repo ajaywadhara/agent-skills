@@ -1,15 +1,15 @@
 ---
 name: pr-guardian
-description: Pre-PR code review and bug detection for Java Spring Boot applications. Use this skill BEFORE raising a PR to (1) detect bugs, security vulnerabilities, and performance issues in code, (2) review Java files for common problems, (3) generate self-review checklists, (4) calculate risk scores, (5) suggest fixes, (6) compare feature branches against develop/master. Activates when user asks to review code, find bugs, conduct code quality checks, check security, prepare for PR, or compare branches.
+description: Pre-PR code review and bug detection for Java Spring Boot applications. Use this skill BEFORE raising a PR to (1) detect bugs, security vulnerabilities, and performance issues in code, (2) review Java files for common problems, (3) generate self-review checklists, (4) calculate risk scores, (5) suggest fixes and apply them interactively, (6) compare feature branches against develop/master. Activates when user asks to review code, find bugs, conduct code quality checks, check security, prepare for PR, or compare branches.
 license: MIT
 compatibility: Requires git for branch comparison features. Designed for Claude Code, GitHub Copilot, or similar AI coding assistants.
 metadata:
   author: Ajay Wadhara
-  version: "1.0"
+  version: "1.1"
   language: Java
   framework: Spring Boot
   category: code-review
-allowed-tools: Bash(git:*) Read Glob Grep Write
+allowed-tools: Bash(git:*) Read Glob Grep Write Edit AskUserQuestion
 ---
 
 # PR Guardian - Pre-PR Defense System
@@ -20,14 +20,219 @@ You are a code review expert. When this skill activates, analyze the user's Java
 
 When asked to review code or prepare for PR:
 
-1. **Determine review mode** (local changes, staged changes, or branch comparison)
-2. **Analyze the code** the user provides or references
-3. **Check against patterns** in the references (bug-patterns.md, security-checklist.md, etc.)
-4. **Report issues** with severity (BLOCKER/WARNING/SUGGESTION)
-5. **Provide fixes** for each issue found
-6. **Calculate risk score** based on findings
-7. **Generate checklist** for the user
-8. **Save report** to `.output/` directory as markdown file
+1. **Clarify review scope** (if not clear from user's request)
+2. **Determine review mode** (local changes, staged changes, or branch comparison)
+3. **Analyze the code** the user provides or references
+4. **Check against patterns** in the references (bug-patterns.md, security-checklist.md, etc.)
+5. **Report issues** with severity (BLOCKER/WARNING/SUGGESTION)
+6. **Provide fixes** for each issue found
+7. **Calculate risk score** based on findings
+8. **Generate checklist** for the user
+9. **Save report** to `.output/` directory as markdown file
+10. **Offer to fix issues** (interactive - ask user)
+11. **Offer to commit fixes** (if fixes were applied)
+
+---
+
+## Interactive Workflows
+
+Use `AskUserQuestion` at key decision points to make the review process interactive and actionable.
+
+### Flow 1: Clarify Review Scope (When Unclear)
+
+If the user's request is ambiguous (e.g., just "review my code"), ask:
+
+```
+Question: "What would you like me to review?"
+Header: "Review Scope"
+Options:
+  - "Local changes" → Review uncommitted/staged changes
+  - "Compare my branch" → Compare feature branch against base (develop/main)
+  - "Recent commits" → Review last few commits
+```
+
+### Flow 2: Branch Selection (For Branch Comparison)
+
+If on a feature branch and base branch is unclear:
+
+```
+Question: "Which branch should I compare against?"
+Header: "Base Branch"
+Options:
+  - "develop (Recommended)" → GitFlow style
+  - "main" → GitHub Flow style
+  - "master" → Legacy repositories
+```
+
+### Flow 3: After Analysis - Offer to Fix Issues
+
+**IMPORTANT:** After presenting findings, ALWAYS ask if the user wants fixes applied.
+
+**If BLOCKERs found:**
+```
+Question: "I found {X} critical issues and {Y} warnings. Would you like me to fix them?"
+Header: "Fix Issues"
+Options:
+  - "Fix BLOCKERs only (Recommended)" → Fix only critical issues
+  - "Fix all issues" → Fix BLOCKERs, warnings, and suggestions
+  - "Let me choose" → Present each issue for individual decision
+  - "No, just the report" → Skip fixes, report is sufficient
+```
+
+**If only WARNINGs/SUGGESTIONs found:**
+```
+Question: "I found {X} warnings and {Y} suggestions. Would you like me to fix them?"
+Header: "Fix Issues"
+Options:
+  - "Fix all warnings (Recommended)" → Fix all warnings
+  - "Fix everything" → Fix warnings and suggestions
+  - "Let me choose" → Present each issue for individual decision
+  - "No, just the report" → Skip fixes
+```
+
+**If no issues found:**
+```
+Question: "No issues found! Your code looks ready for PR. What would you like to do?"
+Header: "Next Steps"
+Options:
+  - "Generate PR description" → Create PR title and description
+  - "Run additional checks" → Deep security or performance review
+  - "Done" → End the review
+```
+
+### Flow 4: Choose Specific Issues to Fix
+
+If user selects "Let me choose", present issues one category at a time:
+
+```
+Question: "Which BLOCKERs should I fix?"
+Header: "BLOCKERs"
+MultiSelect: true
+Options:
+  - "[UserService:45] Optional.get() without check"
+  - "[PaymentController:89] SQL injection risk"
+  - "[AuthService:120] Hardcoded API key"
+```
+
+Then repeat for warnings and suggestions if desired.
+
+### Flow 5: After Applying Fixes
+
+After fixes have been applied, ask about next steps:
+
+```
+Question: "I've applied {X} fixes. What would you like to do next?"
+Header: "After Fixes"
+Options:
+  - "Review the changes" → Show diff of applied fixes
+  - "Run the review again" → Re-analyze to catch any remaining issues
+  - "Commit these changes (Recommended)" → Stage and commit fixes
+  - "Done" → Keep changes uncommitted
+```
+
+### Flow 6: Commit Fixes
+
+If user wants to commit:
+
+```
+Question: "How should I commit these fixes?"
+Header: "Commit Style"
+Options:
+  - "Single commit (Recommended)" → All fixes in one commit
+  - "Separate commits" → One commit per fix category (security, null-safety, etc.)
+  - "Let me commit manually" → Leave staged, user will commit
+```
+
+**Commit message format:**
+```
+fix: address PR review findings
+
+- Fix {X} BLOCKER issues
+- Fix {Y} WARNING issues
+- Apply {Z} suggested improvements
+
+Issues fixed:
+- [File:Line] Description of fix
+- ...
+
+Co-Authored-By: Ajay <ajay@wadhara.com>
+```
+
+---
+
+## Complete Interactive Flow Example
+
+```
+User: "Review my code"
+
+Agent: [Checks git status, finds feature branch with uncommitted changes]
+
+Agent: [AskUserQuestion]
+  "What would you like me to review?"
+  Options: Local changes | Compare my branch | Recent commits
+
+User: "Compare my branch"
+
+Agent: [Detects feature/user-auth branch, finds develop as base]
+  "Comparing feature/user-auth against develop..."
+  [Runs analysis]
+
+Agent: [Presents findings]
+  "## Review Complete
+
+   Found 2 BLOCKERs, 3 WARNINGs, 1 SUGGESTION
+   Risk Score: 7/10 (HIGH)
+
+   ### 🚫 BLOCKERs
+   1. [UserService.java:45] Optional.get() without isPresent check
+   2. [AuthController.java:89] Hardcoded JWT secret
+
+   ### ⚠️ WARNINGs
+   ..."
+
+Agent: [AskUserQuestion]
+  "I found 2 critical issues and 3 warnings. Would you like me to fix them?"
+  Options: Fix BLOCKERs only (Recommended) | Fix all issues | Let me choose | No, just the report
+
+User: "Fix BLOCKERs only"
+
+Agent: [Applies fixes to UserService.java and AuthController.java]
+  "Fixed 2 BLOCKER issues:
+   - UserService.java:45 - Added orElseThrow() for null safety
+   - AuthController.java:89 - Moved secret to application.yml with @Value"
+
+Agent: [AskUserQuestion]
+  "I've applied 2 fixes. What would you like to do next?"
+  Options: Review the changes | Run the review again | Commit these changes (Recommended) | Done
+
+User: "Commit these changes"
+
+Agent: [AskUserQuestion]
+  "How should I commit these fixes?"
+  Options: Single commit (Recommended) | Separate commits | Let me commit manually
+
+User: "Single commit"
+
+Agent: [Stages and commits]
+  "Created commit abc123:
+   'fix: address PR review findings - 2 BLOCKER issues'
+
+   Your branch is now ready for PR! Remaining items:
+   - 3 WARNINGs (optional to fix)
+   - 1 SUGGESTION (optional)"
+```
+
+---
+
+## When NOT to Ask Questions
+
+Skip interactive questions when:
+- User explicitly specifies what to review ("review UserService.java")
+- User explicitly requests just a report ("give me a report", "just analyze")
+- User says "fix everything" or "fix all issues" upfront
+- User is in a CI/CD or automated context
+
+---
 
 ---
 
