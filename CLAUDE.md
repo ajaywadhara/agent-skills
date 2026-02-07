@@ -21,6 +21,7 @@ agent-skills/
 | [pr-guardian](#pr-guardian) | 1.1 | Pre-PR code review and bug detection for Java/Spring Boot (interactive) | "review code", "review my branch", "compare against develop", "find bugs", "check security" |
 | [openapi-architect](#openapi-architect) | 1.0 | Design and generate OpenAPI 3.1 specifications | "design an API", "create OpenAPI spec", "review API design", "architect REST endpoints" |
 | [spring-boot-4-migration](#spring-boot-4-migration) | 1.0 | Comprehensive migration guide for Spring Boot 3.x to 4.x | "migrate to Spring Boot 4", "upgrade Spring Boot", "Spring Boot 4 migration", "modernize Spring Boot" |
+| [design-doc](#design-doc) | 1.0 | One-shot engineering design documents with Mermaid diagrams | "design a system", "create a design doc", "architect a feature", "document architecture" |
 
 **Author:** Ajay Wadhara
 **License:** MIT
@@ -223,6 +224,67 @@ Reports are saved to `.output/` directory:
 - "What's the upgrade path from 3.2?"
 - "Help me migrate Jackson to version 3"
 - "Update my tests for Spring Boot 4"
+
+---
+
+### design-doc
+
+**Location:** `design-doc-skill/`
+
+**Purpose:** One-shot engineering design document generator. Takes a feature or system description and produces a complete, publication-ready design document with embedded Mermaid diagrams — with minimal back-and-forth.
+
+**Capabilities:**
+- Generate complete design documents from a single prompt
+- Automatically select appropriate diagram types based on the domain
+- Produce C4 Context, Container, and Component diagrams
+- Create entity relationship diagrams (ERDs)
+- Illustrate key flows with sequence diagrams
+- Document state machines for stateful systems
+- Capture design decisions in a structured Decision Log
+- Save documents to `.output/` directory
+
+**Design Philosophy:**
+- **One-shot output** — Produces the full document from a single prompt, asking at most 1 clarifying round
+- **Automatic diagram selection** — Uses a decision matrix to pick the right diagrams based on the domain
+- **Opinionated defaults** — Makes reasonable design choices, documents rationale in Decision Log
+- **Progressive detail** — Context → Containers → Components → Flows
+
+**Diagram Types Supported:**
+- C4 Context, Container, and Component diagrams
+- Sequence diagrams (happy paths and error flows)
+- Entity Relationship Diagrams (ERDs)
+- State diagrams (order lifecycles, workflows)
+- Class diagrams (domain models, interfaces)
+- Flowcharts (pipelines, decision trees)
+
+**Document Sections:**
+1. Overview (problem, goals, non-goals)
+2. Architecture (C4 Context + Container views)
+3. Component Design
+4. Data Model (ERD + entity table)
+5. Key Flows (sequence diagrams)
+6. State Management (when applicable)
+7. API Contracts (when applicable)
+8. Non-Functional Requirements
+9. Security Considerations
+10. Decision Log
+11. Risks & Mitigations
+12. Open Questions
+
+**Reference Documents:**
+- `references/mermaid-syntax.md` — Full syntax reference for all diagram types with examples and styling
+
+**Example Commands:**
+- "Design a notification service"
+- "Create a design doc for user authentication"
+- "Architect an event-driven order system"
+- "Document the architecture of our payment flow"
+- "Design doc for a real-time chat feature"
+- "How should I design a caching layer?"
+
+**Report Output:**
+Documents are saved to `.output/` directory:
+- `.output/design-doc-{topic-slug}-{timestamp}.md`
 
 ---
 

@@ -22,7 +22,7 @@ git clone https://github.com/ajaywadhara/agent-skills.git
 cp -r agent-skills/*-skill .claude/skills/
 ```
 
-Then just ask your AI assistant: *"Review my code"* or *"Help me migrate to Spring Boot 4"*
+Then just ask your AI assistant: *"Review my code"*, *"Design a notification service"*, or *"Help me migrate to Spring Boot 4"*
 
 ---
 
@@ -54,6 +54,66 @@ Agent Skills are **reusable capabilities** that teach AI assistants how to perfo
 | **[pr-guardian](pr-guardian-skill/)** | Pre-PR code review and bug detection | Review code before creating a pull request, find bugs, check security |
 | **[openapi-architect](openapi-architect-skill/)** | REST API design and OpenAPI specs | Design APIs, create OpenAPI specifications, follow best practices |
 | **[spring-boot-4-migration](spring-boot-4-migration-skill/)** | Spring Boot 3.x to 4.x migration | Upgrade Spring Boot, migrate Jackson, update tests |
+| **[design-doc](design-doc-skill/)** | Engineering design docs with Mermaid diagrams | Create architecture docs, design systems, document decisions |
+
+---
+
+## I Have a Vague Idea — How Does This Help Me?
+
+You don't need to be an expert. These skills turn **minimal input into expert-level output**. Here's what that looks like in practice:
+
+### Scenario 1: "I need to build a notification service"
+
+That's it. That's all you type. The **design-doc** skill takes that one sentence and produces:
+
+- A complete design document with problem statement, goals, and non-goals
+- C4 architecture diagrams showing how the service fits into your ecosystem
+- An entity relationship diagram for the data model
+- Sequence diagrams for key flows (sending notifications, handling failures)
+- A decision log explaining *why* certain choices were made
+- Security considerations, risk analysis, and open questions
+
+**You provide:** 1 sentence. **You get:** A 5-10 page engineering design document with 3-5 Mermaid diagrams, ready for team review.
+
+### Scenario 2: "Review my code"
+
+You've written some Java code and want to make sure it's solid before creating a PR. Just say those three words. The **pr-guardian** skill:
+
+- Detects your uncommitted changes or compares your branch
+- Scans for 30+ bug patterns (null safety, SQL injection, resource leaks)
+- Runs a full OWASP security checklist
+- Calculates a risk score (1-10) for your changes
+- Generates a detailed report with exact fixes for every issue found
+- Offers to **automatically apply the fixes** for you
+
+**You provide:** "Review my code." **You get:** A full code review with actionable fixes, as if a senior engineer spent 30 minutes on your PR.
+
+### Scenario 3: "I need an API for managing users"
+
+That's enough for the **openapi-architect** skill. It produces:
+
+- A complete OpenAPI 3.1 specification with all CRUD endpoints
+- Proper error handling following RFC 7807
+- Pagination, filtering, and sorting
+- Authentication/authorization schemes
+- Correct HTTP status codes and headers
+
+**You provide:** A rough idea. **You get:** A production-ready API spec following industry standards.
+
+### Scenario 4: "Migrate to Spring Boot 4"
+
+Your project is on Spring Boot 3.x and you want to upgrade. The **spring-boot-4-migration** skill:
+
+- Walks you through 10 migration phases in order
+- Tells you exactly which dependencies, properties, and APIs changed
+- Covers Jackson 3, Spring Security 7, Spring Framework 7, and more
+- Provides a verification script to validate your migration
+
+**You provide:** "Migrate to Spring Boot 4." **You get:** A step-by-step migration guide tailored to your codebase.
+
+---
+
+> **The pattern is simple:** You bring the *what*, these skills bring the *how*. The less you know about best practices, the more value you get — because every skill encodes expert knowledge that would otherwise take hours to research.
 
 ---
 
@@ -74,6 +134,7 @@ npx skills add ajaywadhara/agent-skills
 npx skills add ajaywadhara/agent-skills/pr-guardian-skill
 npx skills add ajaywadhara/agent-skills/openapi-architect-skill
 npx skills add ajaywadhara/agent-skills/spring-boot-4-migration-skill
+npx skills add ajaywadhara/agent-skills/design-doc-skill
 ```
 
 ### Option 2: Manual Installation (Claude Code)
@@ -98,6 +159,7 @@ git clone https://github.com/ajaywadhara/agent-skills.git
 cp -r agent-skills/pr-guardian-skill .claude/skills/
 cp -r agent-skills/openapi-architect-skill .claude/skills/
 cp -r agent-skills/spring-boot-4-migration-skill .claude/skills/
+cp -r agent-skills/design-doc-skill .claude/skills/
 ```
 
 3. Your project structure should look like:
@@ -110,7 +172,9 @@ your-project/
 │       │   └── SKILL.md
 │       ├── openapi-architect-skill/
 │       │   └── SKILL.md
-│       └── spring-boot-4-migration-skill/
+│       ├── spring-boot-4-migration-skill/
+│       │   └── SKILL.md
+│       └── design-doc-skill/
 │           └── SKILL.md
 ├── src/
 └── ...
@@ -169,6 +233,15 @@ Once installed, skills activate automatically when you use trigger phrases with 
 "Create an OpenAPI spec for a payment service"
 "Review my API design"
 "What status code should I use for validation errors?"
+```
+
+### design-doc Examples
+
+```
+"Design a notification service"
+"Create a design doc for user authentication"
+"Architect an event-driven order system"
+"How should I design a caching layer?"
 ```
 
 ### spring-boot-4-migration Examples
