@@ -22,6 +22,7 @@ agent-skills/
 | [openapi-architect](#openapi-architect) | 1.0 | Design and generate OpenAPI 3.1 specifications | "design an API", "create OpenAPI spec", "review API design", "architect REST endpoints" |
 | [spring-boot-4-migration](#spring-boot-4-migration) | 1.0 | Comprehensive migration guide for Spring Boot 3.x to 4.x | "migrate to Spring Boot 4", "upgrade Spring Boot", "Spring Boot 4 migration", "modernize Spring Boot" |
 | [design-doc](#design-doc) | 1.0 | One-shot engineering design documents with Mermaid diagrams | "design a system", "create a design doc", "architect a feature", "document architecture" |
+| [multi-module-scaffolder](#multi-module-scaffolder) | 1.0 | Scaffold multi-module Gradle projects with Spring Boot 4 and exception handling | "scaffold project", "create multi-module", "new gradle project", "generate project skeleton" |
 
 **Author:** Ajay Wadhara
 **License:** MIT
@@ -285,6 +286,61 @@ Reports are saved to `.output/` directory:
 **Report Output:**
 Documents are saved to `.output/` directory:
 - `.output/design-doc-{topic-slug}-{timestamp}.md`
+
+---
+
+### multi-module-scaffolder
+
+**Location:** `multi-module-scaffolder-skill/`
+
+**Purpose:** Single-shot project scaffolder that generates complete multi-module Gradle projects with Spring Boot 4.0.0, Java 21, and a production-grade exception handling architecture. Asks only for project name and base package, then scaffolds the entire project.
+
+**Capabilities:**
+- Generate complete multi-module Gradle projects from minimal input
+- Create server, api-gateway, and common:exception modules
+- Generate Gradle version catalog (`libs.versions.toml`) with Spring Boot 4.0.0
+- Scaffold production-grade exception hierarchy with GlobalExceptionHandler
+- Generate 15+ exception handler methods for standard Spring/Jakarta exceptions
+- Create ErrorCode enum, ErrorCategory enum, and ErrorResponse record
+- Produce per-module exception classes (ServerException, ApiGatewayException)
+- Generate application.yml, .gitignore, and test classes
+
+**Generated Modules:**
+- **server** — Spring Boot application with `@SpringBootApplication`, `@ComponentScan`, `@EntityScan`
+- **api-gateway** — Library module for API controllers and DTOs
+- **common:exception** — Shared exception handling framework with GlobalExceptionHandler
+
+**Exception Hierarchy:**
+```
+RuntimeException
+└── {Name}Exception (common:exception)
+    ├── ResourceNotFoundException
+    ├── ValidationException (with inner ValidationError)
+    ├── BadRequestException
+    ├── ServiceException (static factory methods)
+    ├── ServerException (server module)
+    └── ApiGatewayException (api-gateway module)
+```
+
+**Inputs Required:**
+1. Project name (kebab-case, e.g., `my-app`)
+2. Base package (e.g., `com.example.myapp`)
+3. Target directory (defaults to current directory)
+
+**Reference Documents:**
+- `references/spring-boot-4-dependencies.md` — Version catalog and dependency details
+- `references/project-structure.md` — Module layout, dependency graph, Gradle patterns
+
+**Scripts:**
+- `scripts/scaffold.py` — Python script that generates the entire project
+- `scripts/output-template.md` — Post-scaffolding summary template
+
+**Example Commands:**
+- "Scaffold a project"
+- "Create a multi-module Gradle project"
+- "New Spring Boot project called order-service"
+- "Generate a project skeleton"
+- "Set up a microservice skeleton"
 
 ---
 
