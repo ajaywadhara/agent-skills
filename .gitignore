@@ -25,3 +25,4 @@ temp/
 # Skill output reports
 .output/*
 !.output/.gitkeep
+telemetry-id
