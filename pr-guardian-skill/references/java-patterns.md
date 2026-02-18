@@ -1,4 +1,4 @@
-# Java/Spring Boot Bug Patterns Reference
+# Java/Spring Boot Patterns Reference
 
 ## Null Safety Bugs
 
