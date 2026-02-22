@@ -23,13 +23,67 @@ You are a code review expert. Analyze code for bugs, security issues, and qualit
 
 ---
 
+## Gathering Changes — Git Commands
+
+A PR includes **everything** on the feature branch — committed work + uncommitted changes. Use these commands to figure out what you're reviewing.
+
+### First: Understand the situation
+
+```bash
+# What branch am I on?
+git branch --show-current
+
+# Any uncommitted work?
+git status --porcelain
+
+# Which base branch exists? (develop, main, or master)
+git branch -a | grep -E "(develop|main|master)$"
+
+# Are there commits on this branch ahead of base?
+git log develop..HEAD --oneline
+# (replace "develop" with main/master if that's the base)
+```
+
+### Then: Get the right diff
+
+**If `git log develop..HEAD` shows commits (branch has committed work):**
+```bash
+# All committed changes on the branch vs base (what the PR will contain)
+git diff develop...HEAD
+
+# Committed + uncommitted together vs base (full picture)
+git diff develop
+
+# Just the file names
+git diff develop --name-only
+
+# Stats (lines added/removed per file)
+git diff develop --stat
+```
+
+**If `git log develop..HEAD` is empty (only uncommitted local changes):**
+```bash
+# Unstaged changes
+git diff
+
+# Staged changes
+git diff --cached
+
+# Both together
+git diff HEAD
+```
+
+If there are no changes at all (nothing committed, nothing uncommitted), tell the user and stop.
+
+---
+
 ## Review Modes
 
 | Mode | When to Use | What to Review |
 |------|-------------|----------------|
-| **Local Changes** | "review my code", "check these changes" | Uncommitted/staged changes |
-| **Branch Comparison** | "review my branch", "compare against develop" | All changes vs base branch |
-| **Specific Commits** | "review last 3 commits" | Changes in specified commits |
+| **Local Changes** | "review my code", "check these changes" | Uncommitted/staged changes (`git diff HEAD`) |
+| **Branch Comparison** | "review my branch", "compare against develop" | All changes vs base branch (`git diff develop`) |
+| **Specific Commits** | "review last 3 commits" | Changes in specified commits (`git diff HEAD~3..HEAD`) |
 
 ---
 
@@ -94,6 +148,43 @@ Options:
 - User specifies exactly what to review
 - User says "fix everything" upfront
 - CI/CD or automated context
+
+---
+
+## Fix-and-Recheck Loop
+
+This is the key behavior. After fixing issues, **don't just stop — re-run the review** to verify fixes are clean and didn't introduce new problems.
+
+```
+Review code → Score it → Issues found?
+                            │
+                      YES   │   NO
+                      ▼     │    ▼
+              Ask user:     │  "PR-ready!"
+              "Fix these?"  │
+                │           │
+           YES  │  NO       │
+            ▼   │   ▼       │
+        Fix it  │  Done     │
+            │               │
+            ▼               │
+     Re-run review ─────────┘
+     (loop back)
+```
+
+**How it works:**
+
+1. After showing results, if score is 4+ or BLOCKERs exist → offer to fix (Flow 2)
+2. User says yes → apply fixes using Edit tool
+3. **Re-run the full review** — gather changes again using the same git diff commands, re-read files, re-analyze, re-score
+4. If score improved to 1-3 → tell the user they're PR-ready
+5. If issues remain → show updated results and ask again
+6. **Keep looping until:**
+   - Score is 1-3 (PR-ready), OR
+   - User says "no" to fixes, OR
+   - No more issues can be auto-fixed (tell user what remains)
+
+**Important:** On re-run, use the same diff base. Fixes are uncommitted changes, so `git diff develop` will still show the full PR picture (original branch commits + applied fixes).
 
 ---
 

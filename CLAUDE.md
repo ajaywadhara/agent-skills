@@ -27,9 +27,9 @@ Production-ready AI coding skills that work with Claude Code, GitHub Copilot, Cu
 ### Features
 - Multi-language support (Java, Python, TypeScript, Go)
 - 3 severity levels: BLOCKER, WARNING, SUGGESTION
-- Interactive fix workflow with selective fixing
 - Risk score calculation (1-10)
-- Branch comparison and commit range review
+- Branch comparison (committed + uncommitted changes vs base)
+- **Fix-and-recheck loop** — fix issues → re-review → repeat until clean
 
 ### Review Modes
 | Mode | Command |
