@@ -11,6 +11,7 @@ Production-ready AI coding skills that work with Claude Code, GitHub Copilot, Cu
 | Skill | Description |
 |-------|-------------|
 | [pr-guardian](#pr-guardian) | Universal pre-PR code review — bugs, security, quality issues |
+| [commit-push-pr](#commit-push-pr) | Commit, push, and create PRs with branch protection checks |
 | [openapi-architect](#openapi-architect) | Design OpenAPI 3.1 specs with REST best practices |
 | [spring-boot-4-migration](#spring-boot-4-migration) | Migrate Spring Boot 3.x → 4.x step-by-step |
 | [design-doc](#design-doc) | Generate design documents with Mermaid diagrams |
@@ -24,22 +25,19 @@ Production-ready AI coding skills that work with Claude Code, GitHub Copilot, Cu
 
 **Triggers:** "review my code", "find bugs", "check security", "compare branches", "is this ready for PR"
 
-### Features
-- Multi-language support (Java, Python, TypeScript, Go)
-- 3 severity levels: BLOCKER, WARNING, SUGGESTION
-- Risk score calculation (1-10)
-- Branch comparison (committed + uncommitted changes vs base)
-- **Fix-and-recheck loop** — fix issues → re-review → repeat until clean
+---
 
-### Review Modes
-| Mode | Command |
-|------|---------|
-| Local changes | "Review my code" |
-| Branch comparison | "Compare my branch against develop" |
-| Specific commits | "Review last 3 commits" |
+## commit-push-pr
 
-### References
-`universal-patterns.md` | `java-patterns.md` | `python-patterns.md` | `typescript-patterns.md` | `go-patterns.md` | `security-checklist.md`
+**Commit, push, and create PRs** — Safely commit changes with branch protection checks.
+
+**Triggers:** "commit my changes", "commit and push", "push my code", "create a PR"
+
+### Workflow
+1. Check current branch - warns if on protected branch (main/master/develop)
+2. Offer to create feature branch if needed
+3. Pre-commit checks (secrets detection, lint/typecheck)
+4. Stage → Commit (conventional commits) → Pull/rebase → Push → PR
 
 ---
 
