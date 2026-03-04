@@ -373,35 +373,45 @@ plugins {
 
 ## HTTP Interface Clients
 
-### Declarative HTTP Clients
+### @ImportHttpServices (New in Spring Boot 4)
+
+Spring Boot 4 introduces `@ImportHttpServices` for zero-boilerplate HTTP client registration:
 
 ```java
-// Define interface
-public interface UserClient {
-    @GetExchange("/users/{id}")
-    User getUser(@PathVariable Long id);
-
-    @PostExchange("/users")
-    User createUser(@RequestBody User user);
-
-    @DeleteExchange("/users/{id}")
-    void deleteUser(@PathVariable Long id);
+// Spring Boot 4 - Zero configuration
+@Configuration(proxyBeanMethods = false)
+@ImportHttpServices(TodoService.class)
+public class HttpClientConfig {
+    // Spring handles all bean registration automatically
 }
 
-// Create client
-@Configuration
-public class ClientConfig {
-    @Bean
-    public UserClient userClient(RestClient.Builder builder) {
-        RestClient restClient = builder
-            .baseUrl("https://api.example.com")
-            .build();
+@HttpExchange(url = "https://api.example.com", accept = "application/json")
+public interface TodoService {
+    @GetExchange("/todos")
+    List<Todo> getAllTodos();
 
-        return HttpServiceProxyFactory
-            .builderFor(RestClientAdapter.create(restClient))
-            .build()
-            .createClient(UserClient.class);
-    }
+    @GetExchange("/todos/{id}")
+    Todo getTodoById(@PathVariable Long id);
+
+    @PostExchange("/todos")
+    Todo createTodo(@RequestBody Todo todo);
+}
+```
+
+### Before (Manual Configuration in 3.x)
+
+```java
+// Spring Boot 3.x - Verbose manual setup
+@Bean
+public UserClient userClient(RestClient.Builder builder) {
+    RestClient restClient = builder
+        .baseUrl("https://api.example.com")
+        .build();
+
+    return HttpServiceProxyFactory
+        .builderFor(RestClientAdapter.create(restClient))
+        .build()
+        .createClient(UserClient.class);
 }
 ```
 
@@ -415,6 +425,109 @@ spring:
       connect-timeout: 5s
       read-timeout: 30s
 ```
+
+---
+
+## Programmatic Bean Registration
+
+### BeanRegistrar Interface (New in Spring Framework 7)
+
+Replaces verbose `BeanDefinitionRegistryPostProcessor` with a clean, AOT-compatible API:
+
+```java
+public class MessageServiceRegistrar implements BeanRegistrar {
+    @Override
+    public void register(BeanRegistry registry, Environment env) {
+        String type = env.getProperty("app.message-type", "email");
+        switch (type.toLowerCase()) {
+            case "email" -> registry.registerBean("messageService",
+                EmailMessageService.class,
+                spec -> spec.description("Email service via BeanRegistrar"));
+            case "sms" -> registry.registerBean("messageService",
+                SmsMessageService.class,
+                spec -> spec.description("SMS service via BeanRegistrar"));
+        }
+    }
+}
+
+// Configuration
+@Configuration
+@Import(MessageServiceRegistrar.class)
+public class AppConfig {
+    // Other beans
+}
+```
+
+### Comparison
+
+| Approach | Complexity | Flexibility | AOT Compatible |
+|----------|------------|-------------|----------------|
+| `@Component` / `@Bean` | Low | Low | Yes |
+| `BeanDefinitionRegistryPostProcessor` | High | High | Partial |
+| **BeanRegistrar** (Spring 7) | Low | High | Yes |
+
+---
+
+## Spring Data AOT Repositories
+
+### Overview
+
+Spring Data AOT moves query processing from runtime to compile-time, delivering 50-70% faster startup, reduced memory usage, and build-time error detection.
+
+### Usage
+
+```java
+public interface CoffeeRepository extends CrudRepository<Coffee, Long> {
+    // SQL generated at compile-time, not runtime
+    List<Coffee> findByNameContainingIgnoreCase(String name);
+
+    List<Coffee> findByRoastLevelAndOrigin(String roastLevel, String origin);
+
+    @Query("SELECT * FROM coffee WHERE price < :maxPrice ORDER BY price")
+    List<Coffee> findAffordableCoffees(BigDecimal maxPrice);
+}
+```
+
+### Enable AOT Processing
+
+**Maven:**
+```xml
+<plugin>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-maven-plugin</artifactId>
+    <executions>
+        <execution>
+            <id>process-aot</id>
+            <goals><goal>process-aot</goal></goals>
+        </execution>
+    </executions>
+</plugin>
+```
+
+```bash
+# AOT processing runs during package
+./mvnw clean package
+
+# View generated implementations
+ls target/spring-aot/main/sources/
+```
+
+### Benefits
+
+| Aspect | Runtime (Traditional) | AOT (Compile-time) |
+|--------|----------------------|-------------------|
+| Query parsing | Every startup | Once at build |
+| Error detection | Runtime exceptions | Build failures |
+| Startup time | Slower | 50-70% faster |
+| Memory usage | Higher (reflection) | Lower (pre-compiled) |
+| Native images | Complex setup | Ready to go |
+
+### Known Limitations
+
+Some methods fall back to runtime reflection:
+- Value expressions requiring runtime evaluation
+- Certain collection return types
+- `ScrollPosition` parameters
 
 ---
 

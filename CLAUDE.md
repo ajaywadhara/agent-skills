@@ -191,3 +191,9 @@ Brief instructions...
 1. **Concise SKILL.md** — Essential workflow only
 2. **References for details** — Load as needed
 3. **Progressive disclosure** — Metadata → Instructions → References
+
+---
+
+## Session Preferences
+
+- At the end of every response, report the estimated **tokens consumed so far** in this session and the **remaining request percentage** (if available). Format: `📊 Session: ~X tokens used | Requests remaining: Y%`

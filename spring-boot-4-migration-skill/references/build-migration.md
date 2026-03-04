@@ -843,6 +843,130 @@ java -jar myapp.jar
 
 ---
 
+## Modular Auto-Configuration
+
+### Why It Changed
+
+In Spring Boot 3.x, the single `spring-boot-autoconfigure` JAR (~2MB) contained auto-configuration for everything — Kafka, Security, MongoDB, Flyway, JPA, etc. — even if your app only used a fraction.
+
+Spring Boot 4 splits this into modular components. You only get auto-configuration for dependencies you explicitly include.
+
+### Migration Impact
+
+Features that "just worked" before now require explicit dependencies. For example, the H2 Console auto-configuration was bundled in the monolithic JAR, but now lives in its own module.
+
+### Quick Migration (Escape Hatch)
+
+```xml
+<!-- Restore 3.x behavior — all auto-configuration in one dependency -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-autoconfigure-classic</artifactId>
+</dependency>
+```
+
+### Recommended (Explicit Modular Dependencies)
+
+```xml
+<!-- Only add what you need -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-restclient</artifactId>
+</dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-h2-console</artifactId>
+</dependency>
+```
+
+### Common Missing Features After Migration
+
+| Missing Feature | Add This Dependency |
+|-----------------|---------------------|
+| RestClient not configured | `spring-boot-starter-restclient` |
+| H2 Console not working | `spring-boot-starter-h2-console` |
+| JPA/Hibernate auto-config | `spring-boot-autoconfigure-data-jpa` |
+| Security auto-config | `spring-boot-autoconfigure-security` |
+| Flyway not running | `spring-boot-starter-flyway` |
+
+**Important:** `spring-boot-autoconfigure-classic` is temporary. Plan to migrate to specific modular dependencies.
+
+---
+
+## JMS Client API (New)
+
+### Overview
+
+Spring Framework 7 introduces the `JmsClient` API, a modern fluent alternative to `JmsTemplate` for Apache ActiveMQ Artemis messaging:
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-artemis</artifactId>
+</dependency>
+```
+
+### Basic Send (Fire-and-Forget)
+
+```java
+@Service
+public class OrderMessagingService {
+    private final JmsClient jmsClient;
+
+    public OrderMessagingService(JmsClient jmsClient) {
+        this.jmsClient = jmsClient;
+    }
+
+    public void sendOrder(Order order) {
+        jmsClient.send("orders.queue").withBody(order);
+    }
+}
+```
+
+### Quality of Service
+
+```java
+public void sendPriorityOrder(Order order) {
+    jmsClient.send("orders.queue")
+        .withPriority(9)
+        .withTimeToLive(Duration.ofMinutes(5))
+        .withBody(order);
+}
+```
+
+### Request-Reply Pattern
+
+```java
+public OrderConfirmation processOrder(Order order) {
+    return jmsClient.requestAndReceive("orders.queue")
+        .withBody(order)
+        .convertTo(OrderConfirmation.class);
+}
+```
+
+### Consumer with @JmsListener
+
+```java
+@Component
+public class OrderConsumer {
+    @JmsListener(destination = "orders.queue")
+    public void processOrder(Order order) {
+        // Process the order
+    }
+}
+```
+
+### JmsClient vs JmsTemplate
+
+| Feature | JmsTemplate | JmsClient |
+|---------|------------|-----------|
+| API style | Procedural | Fluent builder |
+| Type conversion | Manual | Automatic |
+| QoS configuration | Verbose | Method chaining |
+| Request-reply | Complex | Built-in |
+
+---
+
 ## Verification Commands
 
 After migration, verify build:

@@ -487,6 +487,53 @@ spring:
 
 ---
 
+## MockMvcTester (New in Spring Framework 7)
+
+### Overview
+
+`MockMvcTester` provides server-side testing with native AssertJ integration, complementing `RestTestClient`:
+
+```java
+@WebMvcTest(BookController.class)
+class BookControllerMockMvcTesterTest {
+
+    @Autowired
+    private MockMvcTester mockMvcTester;
+
+    @Test
+    void shouldReturnBook() {
+        assertThat(mockMvcTester.get().uri("/api/books/1"))
+            .hasStatusOk()
+            .bodyJson()
+            .extractingPath("$.title")
+            .isEqualTo("Clean Code");
+    }
+
+    @Test
+    void shouldReturnAllBooks() {
+        assertThat(mockMvcTester.get().uri("/api/books"))
+            .hasStatusOk()
+            .bodyJson()
+            .extractingPath("$.length()")
+            .isEqualTo(3);
+    }
+}
+```
+
+### When to Use Each
+
+| Scenario | MockMvcTester | RestTestClient |
+|----------|---------------|----------------|
+| File uploads / multipart requests | ✅ | |
+| Server-side handler inspection | ✅ | |
+| Need to inspect exceptions | ✅ | |
+| Fine-grained HttpServletRequest access | ✅ | |
+| Multiple content types (XML, etc.) | | ✅ |
+| Same tests for mock and real HTTP | | ✅ |
+| Typed response body handling | | ✅ |
+
+---
+
 ## Migration Checklist
 
 - [ ] Replace `@MockBean` with `@MockitoBean`

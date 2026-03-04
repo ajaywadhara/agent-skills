@@ -497,5 +497,74 @@ public class MultiSecurityConfig {
 - [ ] Add `spring-boot-starter-security-test` for test annotations
 - [ ] Update `spring-security.version` property (not `spring-authorization-server.version`)
 - [ ] Compile with `--parameters` if using method parameter names in SpEL
+- [ ] Review Multi-Factor Authentication if applicable
 - [ ] Test all secured endpoints
 - [ ] Test OAuth2 flows if applicable
+
+---
+
+## Multi-Factor Authentication (New in Spring Security 7)
+
+### @EnableMultiFactorAuthentication
+
+Spring Security 7 introduces declarative MFA with automatic factor routing and One-Time Token (OTT) support:
+
+```java
+@Configuration
+@EnableWebSecurity
+@EnableMultiFactorAuthentication(authorities = {
+    FactorGrantedAuthority.PASSWORD_AUTHORITY,
+    FactorGrantedAuthority.OTT_AUTHORITY
+})
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
+            .formLogin(Customizer.withDefaults())
+            .oneTimeTokenLogin(Customizer.withDefaults())
+            .build();
+    }
+}
+```
+
+### Custom OneTimeTokenService
+
+Override the default UUID tokens with custom implementations (e.g., 5-digit PINs):
+
+```java
+@Component
+public class CustomOneTimeTokenService implements OneTimeTokenService {
+
+    private final Map<String, OneTimeToken> tokens = new ConcurrentHashMap<>();
+
+    @Override
+    public OneTimeToken generate(GenerateOneTimeTokenRequest request) {
+        String token = String.format("%05d", new Random().nextInt(100000));
+        Instant expiresAt = Instant.now().plus(5, ChronoUnit.MINUTES);
+
+        OneTimeToken ott = new DefaultOneTimeToken(token, request.getUsername(), expiresAt);
+        tokens.put(token, ott);
+        return ott;
+    }
+
+    @Override
+    public Authentication consume(ConsumeOneTimeTokenRequest request) {
+        OneTimeToken token = tokens.remove(request.getToken());
+        if (token == null || token.getExpiresAt().isBefore(Instant.now())) {
+            throw new InvalidOneTimeTokenException("Invalid or expired token");
+        }
+        return new OneTimeTokenAuthenticationToken(token.getUsername());
+    }
+}
+```
+
+### Key Concepts
+
+- **FactorGrantedAuthority**: Defines available factor types (PASSWORD_AUTHORITY, OTT_AUTHORITY)
+- **Automatic Factor Routing**: Spring Security redirects users to complete incomplete authentication chains
+- **Factor Completion Tracking**: Framework tracks which factors have been satisfied per session
