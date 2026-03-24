@@ -1,0 +1,155 @@
+{
+  "document": {
+    "id": "0:0",
+    "name": "Document",
+    "type": "DOCUMENT",
+    "children": [
+      {
+        "id": "1:1",
+        "name": "Landing Page",
+        "type": "CANVAS",
+        "children": [
+          {
+            "id": "2:1",
+            "name": "Hero Section",
+            "type": "FRAME",
+            "layoutMode": "VERTICAL",
+            "itemSpacing": 24,
+            "paddingTop": 64,
+            "paddingRight": 32,
+            "paddingBottom": 64,
+            "paddingLeft": 32,
+            "primaryAxisAlignItems": "CENTER",
+            "counterAxisAlignItems": "CENTER",
+            "absoluteBoundingBox": { "x": 0, "y": 0, "width": 1440, "height": 600 },
+            "fills": [
+              { "type": "SOLID", "visible": true, "color": { "r": 0.96, "g": 0.96, "b": 0.98, "a": 1 } }
+            ],
+            "children": [
+              {
+                "id": "3:1",
+                "name": "Heading",
+                "type": "TEXT",
+                "characters": "Build faster with our platform",
+                "style": {
+                  "fontFamily": "Inter",
+                  "fontSize": 48,
+                  "fontWeight": 700,
+                  "lineHeightPx": 56,
+                  "letterSpacing": -0.5
+                },
+                "fills": [
+                  { "type": "SOLID", "visible": true, "color": { "r": 0.07, "g": 0.07, "b": 0.14, "a": 1 } }
+                ]
+              },
+              {
+                "id": "3:2",
+                "name": "Subheading",
+                "type": "TEXT",
+                "characters": "The modern toolkit for shipping products that users love.",
+                "style": {
+                  "fontFamily": "Inter",
+                  "fontSize": 20,
+                  "fontWeight": 400,
+                  "lineHeightPx": 28,
+                  "letterSpacing": 0
+                },
+                "fills": [
+                  { "type": "SOLID", "visible": true, "color": { "r": 0.4, "g": 0.4, "b": 0.47, "a": 1 } }
+                ]
+              },
+              {
+                "id": "3:3",
+                "name": "CTA Button",
+                "type": "COMPONENT",
+                "layoutMode": "HORIZONTAL",
+                "itemSpacing": 8,
+                "paddingTop": 12,
+                "paddingRight": 24,
+                "paddingBottom": 12,
+                "paddingLeft": 24,
+                "cornerRadius": 8,
+                "absoluteBoundingBox": { "x": 600, "y": 300, "width": 200, "height": 48 },
+                "fills": [
+                  { "type": "SOLID", "visible": true, "color": { "r": 0.23, "g": 0.51, "b": 0.97, "a": 1 } }
+                ],
+                "children": [
+                  {
+                    "id": "4:1",
+                    "name": "Button Label",
+                    "type": "TEXT",
+                    "characters": "Get Started",
+                    "style": {
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": 600,
+                      "lineHeightPx": 24
+                    },
+                    "fills": [
+                      { "type": "SOLID", "visible": true, "color": { "r": 1, "g": 1, "b": 1, "a": 1 } }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "2:2",
+            "name": "Features Grid",
+            "type": "FRAME",
+            "layoutMode": "HORIZONTAL",
+            "itemSpacing": 32,
+            "paddingTop": 48,
+            "paddingRight": 32,
+            "paddingBottom": 48,
+            "paddingLeft": 32,
+            "absoluteBoundingBox": { "x": 0, "y": 600, "width": 1440, "height": 400 },
+            "fills": [
+              { "type": "SOLID", "visible": true, "color": { "r": 1, "g": 1, "b": 1, "a": 1 } }
+            ],
+            "children": [
+              {
+                "id": "5:1",
+                "name": "Feature Card",
+                "type": "COMPONENT",
+                "layoutMode": "VERTICAL",
+                "itemSpacing": 16,
+                "paddingTop": 24,
+                "paddingRight": 24,
+                "paddingBottom": 24,
+                "paddingLeft": 24,
+                "cornerRadius": 12,
+                "absoluteBoundingBox": { "x": 32, "y": 648, "width": 440, "height": 300 },
+                "fills": [
+                  { "type": "SOLID", "visible": true, "color": { "r": 0.98, "g": 0.98, "b": 0.99, "a": 1 } }
+                ],
+                "children": [
+                  {
+                    "id": "6:1",
+                    "name": "Feature Title",
+                    "type": "TEXT",
+                    "characters": "Lightning Fast",
+                    "style": { "fontFamily": "Inter", "fontSize": 24, "fontWeight": 600, "lineHeightPx": 32 },
+                    "fills": [
+                      { "type": "SOLID", "visible": true, "color": { "r": 0.07, "g": 0.07, "b": 0.14, "a": 1 } }
+                    ]
+                  },
+                  {
+                    "id": "6:2",
+                    "name": "Feature Description",
+                    "type": "TEXT",
+                    "characters": "Optimized for speed with edge computing and smart caching.",
+                    "style": { "fontFamily": "Inter", "fontSize": 16, "fontWeight": 400, "lineHeightPx": 24 },
+                    "fills": [
+                      { "type": "SOLID", "visible": true, "color": { "r": 0.4, "g": 0.4, "b": 0.47, "a": 1 } }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
