@@ -55,6 +55,7 @@ Agent Skills are **reusable capabilities** that teach AI assistants how to perfo
 | **[openapi-architect](openapi-architect-skill/)** | REST API design and OpenAPI specs | Design APIs, create OpenAPI specifications, follow best practices |
 | **[spring-boot-4-migration](spring-boot-4-migration-skill/)** | Spring Boot 3.x to 4.x migration | Upgrade Spring Boot, migrate Jackson, update tests |
 | **[design-doc](design-doc-skill/)** | Engineering design docs with Mermaid diagrams | Create architecture docs, design systems, document decisions |
+| **[github-profile](github-profile-skill/)** | GitHub profile README generator with 8 themes | Make your GitHub profile look great, create a profile README |
 
 ---
 

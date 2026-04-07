@@ -16,6 +16,7 @@ Production-ready AI coding skills that work with Claude Code, GitHub Copilot, Cu
 | [spring-boot-4-migration](#spring-boot-4-migration) | Migrate Spring Boot 3.x → 4.x step-by-step |
 | [design-doc](#design-doc) | Generate design documents with Mermaid diagrams |
 | [multi-module-scaffolder](#multi-module-scaffolder) | Scaffold Spring Boot 4 multi-module Gradle projects |
+| [github-profile](#github-profile) | Generate a standout GitHub profile README with themes |
 
 ---
 
