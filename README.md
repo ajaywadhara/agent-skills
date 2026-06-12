@@ -59,6 +59,28 @@ Agent Skills are **reusable capabilities** that teach AI assistants how to perfo
 
 ---
 
+## Agents
+
+This repo also hosts ready-to-use **Claude Code subagents** — specialists that run noisy, self-contained jobs in their **own context window**, so your main session stays sharp.
+
+**[→ Subagent Starter Pack](agents/)** — five agents you can drop into `.claude/agents/` (project) or `~/.claude/agents/` (everywhere):
+
+| Agent | What it does | Touches your files? |
+|---|---|---|
+| `doc-writer` | Writes/updates docs — Javadoc, JSDoc/TSDoc, docstrings, README | Docs only |
+| `code-reviewer` | Reviews for bugs, security, readability — ranked findings | **No (read-only)** |
+| `commit-writer` | Conventional Commits message from your staged diff | **No (won't commit)** |
+| `test-writer` | Writes unit tests in your framework and runs them | Test files |
+| `a11y-checker` | Audits frontend code for accessibility issues | **No (read-only)** |
+
+```bash
+mkdir -p .claude/agents && cp agents/*.md .claude/agents/ && rm .claude/agents/README.md
+```
+
+Restart your Claude Code session after copying — on-disk agent files load at startup. Full guide in the [pack README](agents/README.md).
+
+---
+
 ## I Have a Vague Idea — How Does This Help Me?
 
 You don't need to be an expert. These skills turn **minimal input into expert-level output**. Here's what that looks like in practice:
